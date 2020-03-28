@@ -23,8 +23,8 @@
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/CommonTypes.hh>
 #include <gazebo/math/Vector3.hh>
-#include "tf2/LinearMath/Matrix3x3.h"
-#include "geometry_msgs/Quaternion.h"
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <geometry_msgs/Quaternion.h>
 
 namespace gazebo {
 

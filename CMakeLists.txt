@@ -11,8 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   robot_state_publisher
   roscpp
   rospy
-  tf
-  t2
+  tf2
   xacro
 )
 
