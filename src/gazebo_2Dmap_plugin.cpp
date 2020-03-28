@@ -23,6 +23,8 @@
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/CommonTypes.hh>
 #include <gazebo/math/Vector3.hh>
+#include "tf2/LinearMath/Matrix3x3.h"
+#include "geometry_msgs/Quaternion.h"
 
 namespace gazebo {
 
@@ -60,7 +62,12 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
   if(_sdf->HasElement("map_size_y"))
     map_size_y_ = _sdf->GetElement("map_size_y")->Get<double>();
 
-  sdf::ElementPtr contactSensorSDF = _sdf->GetElement("contactSensor");
+  if(_sdf->HasElement("file_path"))
+    file_path_ = _sdf->GetElement("file_path")->Get<std::string>(); 
+  
+  CreateOccupancyMap();
+
+  //sdf::ElementPtr contactSensorSDF = _sdf->GetElement("contactSensor");
 
   //  std::string service_name = "world/get_octomap";
   //  std::string octomap_pub_topic = "world/octomap";
@@ -271,6 +278,76 @@ bool OccupancyMapFromWorld::index2cell(int index, unsigned int cell_size_x,
   }
 }
 
+void grid2image(nav_msgs::OccupancyGrid* map, std::string mapname_)
+    {
+      ROS_INFO("Received a %d X %d map @ %.3f m/pix",
+               map->info.width,
+               map->info.height,
+               map->info.resolution);
+
+      int threshold_occupied_ = 65;
+  	  int threshold_free_ = 25;
+
+
+      std::string mapdatafile = mapname_ + ".pgm";
+      ROS_INFO("Writing map occupancy data to %s", mapdatafile.c_str());
+      FILE* out = fopen(mapdatafile.c_str(), "w");
+      if (!out)
+      {
+        ROS_ERROR("Couldn't save map file to %s", mapdatafile.c_str());
+        return;
+      }
+
+      fprintf(out, "P5\n# CREATOR: map_saver.cpp %.3f m/pix\n%d %d\n255\n",
+              map->info.resolution, map->info.width, map->info.height);
+      for(unsigned int y = 0; y < map->info.height; y++) {
+        for(unsigned int x = 0; x < map->info.width; x++) {
+          unsigned int i = x + (map->info.height - y - 1) * map->info.width;
+          if (map->data[i] >= 0 && map->data[i] <= threshold_free_) { // [0,free)
+            fputc(254, out);
+          } else if (map->data[i] >= threshold_occupied_) { // (occ,255]
+            fputc(000, out);
+          } else { //occ [0.25,0.65]
+            fputc(205, out);
+          }
+        }
+      }
+
+      fclose(out);
+
+
+      std::string mapmetadatafile = mapname_ + ".yaml";
+      ROS_INFO("Writing map occupancy data to %s", mapmetadatafile.c_str());
+      FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
+
+
+      /*
+resolution: 0.100000
+origin: [0.000000, 0.000000, 0.000000]
+#
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+       */
+
+      geometry_msgs::Quaternion orientation = map->info.origin.orientation;
+      tf2::Matrix3x3 mat(tf2::Quaternion(
+        orientation.x,
+        orientation.y,
+        orientation.z,
+        orientation.w
+      ));
+      double yaw, pitch, roll;
+      mat.getEulerYPR(yaw, pitch, roll);
+
+      fprintf(yaml, "image: %s\nresolution: %f\norigin: [%f, %f, %f]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.196\n\n",
+              mapdatafile.c_str(), map->info.resolution, map->info.origin.position.x, map->info.origin.position.y, yaw);
+
+      fclose(yaml);
+
+      ROS_INFO("Done\n");
+    }
+
 void OccupancyMapFromWorld::CreateOccupancyMap()
 {
   //TODO map origin different from (0,0)
@@ -284,7 +361,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
   //all cells are initially unknown
   std::fill(occupancy_map_->data.begin(), occupancy_map_->data.end(), -1);
   occupancy_map_->header.stamp = ros::Time::now();
-  occupancy_map_->header.frame_id = "odom"; //TODO map frame
+  occupancy_map_->header.frame_id = "map"; //TODO map frame
   occupancy_map_->info.map_load_time = ros::Time(0);
   occupancy_map_->info.resolution = map_resolution_;
   occupancy_map_->info.width = cells_size_x;
@@ -300,7 +377,8 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
       boost::dynamic_pointer_cast<gazebo::physics::RayShape>(
         engine->CreateShape("ray", gazebo::physics::CollisionPtr()));
 
-  std::cout << "Starting wavefront expansion for mapping" << std::endl;
+  //std::cout << "Starting wavefront expansion for mapping" << std::endl;
+  ROS_INFO("Starting wavefront expansion for mapping\n");  
 
   //identify free space by spreading out from initial robot cell
   double robot_x = 0;
@@ -317,6 +395,12 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
                            "map");
     return;
   }
+
+  ROS_INFO_STREAM("CELL_X: " << cell_x << " " << "CELL_Y: " << cell_y);
+
+  ROS_INFO_STREAM("cells_size_x: " << cells_size_x << " " << "cells_size_y: " << cells_size_y);
+
+  ROS_INFO_STREAM("cells_size_x: " << map_index);
 
   std::vector<unsigned int> wavefront;
   wavefront.push_back(map_index);
@@ -367,7 +451,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
               wavefront.push_back(child_index);
               //mark wavefront in map so we don't add children to wavefront multiple
               //times
-              occupancy_map_->data.at(child_index) = 50;
+              occupancy_map_->data.at(child_index) = 100;
             }
           }
         }
@@ -375,8 +459,14 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
     }
   }
 
+  //std::system("rosrun map_server map_saver -f env_test &");
+
   map_pub_.publish(*occupancy_map_);
-  std::cout << "\rOccupancy Map generation completed                  " << std::endl;
+  ROS_INFO("Occupancy Map generation completed\n");
+
+  grid2image(occupancy_map_, file_path_);
+
+  //std::cout << "\rOccupancy Map generation completed                  " << std::endl;
 }
 
 // Register this plugin with the simulator
