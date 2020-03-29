@@ -130,8 +130,10 @@ void OccupancyMapFromWorld::cell2world(unsigned int cell_x, unsigned int cell_y,
                                        double map_resolution,
                                        double& world_x, double &world_y)
 {
-  world_x = cell_x * map_resolution - map_size_x/2 + map_resolution/2;
-  world_y = cell_y * map_resolution - map_size_y/2 + map_resolution/2;
+  /*world_x = cell_x * map_resolution - map_size_x/2 + map_resolution/2;
+  world_y = cell_y * map_resolution - map_size_y/2 + map_resolution/2;*/
+  world_x = cell_x * map_resolution + map_resolution/2;
+  world_y = cell_y * map_resolution + map_resolution/2;
 }
 
 void OccupancyMapFromWorld::world2cell(double world_x, double world_y,
@@ -139,8 +141,10 @@ void OccupancyMapFromWorld::world2cell(double world_x, double world_y,
                                        double map_resolution,
                                        unsigned int& cell_x, unsigned int& cell_y)
 {
-  cell_x = (world_x + map_size_x/2) / map_resolution;
-  cell_y = (world_y + map_size_y/2) / map_resolution;
+  /*cell_x = (world_x + map_size_x/2) / map_resolution;
+  cell_y = (world_y + map_size_y/2) / map_resolution;*/
+  cell_x = world_x / map_resolution;
+  cell_y = world_y / map_resolution;
 }
 
 bool OccupancyMapFromWorld::cell2index(int cell_x, int cell_y,
@@ -150,6 +154,7 @@ bool OccupancyMapFromWorld::cell2index(int cell_x, int cell_y,
   if(cell_x >= 0 && cell_x < cell_size_x && cell_y >= 0 && cell_y < cell_size_y)
   {
     map_index = cell_y * cell_size_y + cell_x;
+    //map_index = cell_x * cell_size_x + cell_y;
     return true;
   }
   else
@@ -214,23 +219,12 @@ void grid2image(nav_msgs::OccupancyGrid* map, std::string map_name)
 
       fclose(out);
 
-      Magick::Image i(mapdatafile);
+      /*Magick::Image i(mapdatafile);
       auto desired_x = i.rows()/2;
       auto desired_y = i.columns()/2;
-      //auto i2 = i;
-      //Magick::Image i("/home/optio32/mt3/map_example2.png");
-      //i.chop(Magick::Geometry(i.rows()/2, 0));
-      //i.chop(Magick::Geometry(i.rows()/2, 0));
       i.crop(Magick::Geometry(0, desired_y));
       i.chop(Magick::Geometry(desired_x, 0));
-      //i2.chop(Magick::Geometry(i.rows()/2, 0, 60, 60));
-      //i.crop(Magick::Geometry(180, 170, 0, ));
-      //i.crop(Magick::Geometry(180, 170, -50, -50));
-      //i.crop(Magick::Geometry(i.rows()/2, i.columns()/2,
-                              //0, i.columns()/2));
-      i.write(mapdatafile);
-      //i.write("/home/optio32/mt3/map_example3.png");
-      //ROS_INFO_STREAM(i.rows()/2 << ":" << i.columns()/2);
+      i.write(mapdatafile);*/
 
 
       std::string mapmetadatafile = map_name + ".yaml";
