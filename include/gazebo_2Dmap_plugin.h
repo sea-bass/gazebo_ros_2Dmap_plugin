@@ -96,7 +96,7 @@ class OccupancyMapFromWorld : public WorldPlugin {
   ros::Publisher map_pub_;
   nav_msgs::OccupancyGrid* occupancy_map_;
   std::string name_;
-  std::string file_path_;
+  std::string full_file_path_;
   double map_resolution_;
   double map_height_;
   double map_size_x_;
