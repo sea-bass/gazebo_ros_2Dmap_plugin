@@ -25,6 +25,7 @@
 #include <gazebo/math/Vector3.hh>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
+#include <Magick++.h>
 
 namespace gazebo {
 
@@ -197,18 +198,39 @@ void grid2image(nav_msgs::OccupancyGrid* map, std::string map_name)
               map->info.resolution, map->info.width, map->info.height);
       for(unsigned int y = 0; y < map->info.height; y++) {
         for(unsigned int x = 0; x < map->info.width; x++) {
+          //unsigned int i = y * map->info.width + x;
           unsigned int i = x + (map->info.height - y - 1) * map->info.width;
           if (map->data[i] >= 0 && map->data[i] <= threshold_free_) { // [0,free)
             fputc(254, out);
           } else if (map->data[i] >= threshold_occupied_) { // (occ,255]
             fputc(000, out);
           } else { //occ [0.25,0.65]
-            fputc(205, out);
+            // an inaccessible cell
+            //fputc(205, out);
+            fputc(000, out);
           }
         }
       }
 
       fclose(out);
+
+      Magick::Image i(mapdatafile);
+      auto desired_x = i.rows()/2;
+      auto desired_y = i.columns()/2;
+      //auto i2 = i;
+      //Magick::Image i("/home/optio32/mt3/map_example2.png");
+      //i.chop(Magick::Geometry(i.rows()/2, 0));
+      //i.chop(Magick::Geometry(i.rows()/2, 0));
+      i.crop(Magick::Geometry(0, desired_y));
+      i.chop(Magick::Geometry(desired_x, 0));
+      //i2.chop(Magick::Geometry(i.rows()/2, 0, 60, 60));
+      //i.crop(Magick::Geometry(180, 170, 0, ));
+      //i.crop(Magick::Geometry(180, 170, -50, -50));
+      //i.crop(Magick::Geometry(i.rows()/2, i.columns()/2,
+                              //0, i.columns()/2));
+      i.write(mapdatafile);
+      //i.write("/home/optio32/mt3/map_example3.png");
+      //ROS_INFO_STREAM(i.rows()/2 << ":" << i.columns()/2);
 
 
       std::string mapmetadatafile = map_name + ".yaml";
@@ -261,8 +283,8 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
   occupancy_map_->info.resolution = map_resolution_;
   occupancy_map_->info.width = cells_size_x;
   occupancy_map_->info.height = cells_size_y;
-  occupancy_map_->info.origin.position.x = map_origin.x - map_size_x_ / 2;
-  occupancy_map_->info.origin.position.y = map_origin.y - map_size_y_ / 2;
+  occupancy_map_->info.origin.position.x = 0;
+  occupancy_map_->info.origin.position.y = 0;
   occupancy_map_->info.origin.position.z = map_origin.z;
   occupancy_map_->info.origin.orientation.w = 1;
 
@@ -280,7 +302,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
   double robot_y = 0;
 
   //find initial robot cell
-  unsigned int cell_x, cell_y, map_index;
+  unsigned int cell_x=0, cell_y=0, map_index;
   world2cell(robot_x, robot_y, map_size_x_, map_size_y_, map_resolution_,
              cell_x, cell_y);
 
@@ -291,11 +313,11 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
     return;
   }
 
-  ROS_INFO_STREAM("CELL_X: " << cell_x << " " << "CELL_Y: " << cell_y);
+  //ROS_INFO_STREAM("CELL_X: " << cell_x << " " << "CELL_Y: " << cell_y);
 
-  ROS_INFO_STREAM("cells_size_x: " << cells_size_x << " " << "cells_size_y: " << cells_size_y);
+  //ROS_INFO_STREAM("cells_size_x: " << cells_size_x << " " << "cells_size_y: " << cells_size_y);
 
-  ROS_INFO_STREAM("cells_size_x: " << map_index);
+  //ROS_INFO_STREAM("cells_size_x: " << map_index);
 
   std::vector<unsigned int> wavefront;
   wavefront.push_back(map_index);
@@ -347,7 +369,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
               //mark wavefront in map so we don't add children to wavefront multiple
               //times
               // all inaccessible cells are filled in black
-              occupancy_map_->data.at(child_index) = 100;//50;
+              occupancy_map_->data.at(child_index) = 50;
             }
           }
         }

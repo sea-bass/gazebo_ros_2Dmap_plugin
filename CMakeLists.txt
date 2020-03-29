@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   xacro
 )
 
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+
 add_definitions(-std=c++11)
 
 find_package(gazebo REQUIRED)
@@ -23,11 +25,11 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 catkin_package()
 
 include_directories(
-  include ${catkin_INCLUDE_DIRS} ${GAZEBO_MSG_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS}
+  include ${catkin_INCLUDE_DIRS} ${GAZEBO_MSG_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS}
 )
 
 add_library(gazebo_2Dmap_plugin SHARED src/gazebo_2Dmap_plugin.cpp)
-target_link_libraries(gazebo_2Dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_2Dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${ImageMagick_LIBRARIES})
 
 install(TARGETS gazebo_2Dmap_plugin
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
