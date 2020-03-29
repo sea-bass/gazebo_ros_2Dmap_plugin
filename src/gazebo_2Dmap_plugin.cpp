@@ -62,115 +62,11 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
   if(_sdf->HasElement("map_size_y"))
     map_size_y_ = _sdf->GetElement("map_size_y")->Get<double>();
 
-  if(_sdf->HasElement("file_path"))
-    file_path_ = _sdf->GetElement("file_path")->Get<std::string>(); 
+  if(_sdf->HasElement("full_file_path"))
+    full_file_path_ = _sdf->GetElement("full_file_path")->Get<std::string>();
   
   CreateOccupancyMap();
-
-  //sdf::ElementPtr contactSensorSDF = _sdf->GetElement("contactSensor");
-
-  //  std::string service_name = "world/get_octomap";
-  //  std::string octomap_pub_topic = "world/octomap";
-  //  getSdfParam<std::string>(_sdf, "octomapPubTopic", octomap_pub_topic,
-  //                           octomap_pub_topic);
-  //  getSdfParam<std::string>(_sdf, "octomapServiceName", service_name,
-  //                           service_name);
-
-  //  gzlog << "Advertising service: " << service_name << std::endl;
-  //  srv_ = node_handle_.advertiseService(
-  //      service_name, &OctomapFromGazeboWorld::ServiceCallback, this);
-  //  octomap_publisher_ =
-  //      node_handle_.advertise<octomap_msgs::Octomap>(octomap_pub_topic, 1, true);
 }
-
-//bool OctomapFromGazeboWorld::ServiceCallback(
-//    robotino_sim::Octomap::Request& req, robotino_sim::Octomap::Response& res) {
-//  std::cout << "Creating octomap with origin at (" << req.bounding_box_origin.x
-//        << ", " << req.bounding_box_origin.y << ", "
-//        << req.bounding_box_origin.z << "), and bounding box lengths ("
-//        << req.bounding_box_lengths.x << ", " << req.bounding_box_lengths.y
-//        << ", " << req.bounding_box_lengths.z
-//        << "), and leaf size: " << req.leaf_size << ".\n";
-//  CreateOctomap(req);
-//  if (req.filename != "") {
-//    if (octomap_) {
-//      std::string path = req.filename;
-//      octomap_->writeBinary(path);
-//      std::cout << std::endl << "Octree saved as " << path << std::endl;
-//    } else {
-//      ROS_ERROR("The octree is NULL. Will not save that.");
-//    }
-//  }
-//  common::Time now = world_->GetSimTime();
-//  res.map.header.frame_id = "world";
-//  res.map.header.stamp = ros::Time(now.sec, now.nsec);
-
-//  if (!octomap_msgs::binaryMapToMsg(*octomap_, res.map)) {
-//    ROS_ERROR("Error serializing OctoMap");
-//  }
-
-//  if (req.publish_octomap) {
-//    gzlog << "Publishing Octomap." << std::endl;
-//    octomap_publisher_.publish(res.map);
-//  }
-
-//  common::SphericalCoordinatesPtr sphericalCoordinates = world_->GetSphericalCoordinates();
-//#if GAZEBO_MAJOR_VERSION >= 6
-//  ignition::math::Vector3d origin_cartesian(0.0, 0.0, 0.0);
-//  ignition::math::Vector3d origin_spherical = sphericalCoordinates->
-//      SphericalFromLocal(origin_cartesian);
-
-//  res.origin_latitude = origin_spherical.X();
-//  res.origin_longitude = origin_spherical.Y();
-//  res.origin_altitude = origin_spherical.Z();
-//  return true;
-//#else
-//  math::Vector3 origin_cartesian(0.0, 0.0, 0.0);
-//  math::Vector3 origin_spherical = sphericalCoordinates->
-//         SphericalFromLocal(origin_cartesian);
-
-//  res.origin_latitude = origin_spherical.x;
-//  res.origin_longitude = origin_spherical.y;
-//  res.origin_altitude = origin_spherical.z;
-//  return true;
-//#endif
-//}
-
-//void OctomapFromGazeboWorld::FloodFill(
-//    const math::Vector3& seed_point, const math::Vector3& bounding_box_origin,
-//    const math::Vector3& bounding_box_lengths, const double leaf_size) {
-//  octomap::OcTreeNode* seed =
-//      octomap_->search(seed_point.x, seed_point.y, seed_point.z);
-//  // do nothing if point occupied
-//  if (seed != NULL && seed->getOccupancy()) return;
-
-//  std::stack<octomath::Vector3> to_check;
-//  to_check.push(octomath::Vector3(seed_point.x, seed_point.y, seed_point.z));
-
-//  while (to_check.size() > 0) {
-//    octomath::Vector3 p = to_check.top();
-
-//    if ((p.x() > bounding_box_origin.x - bounding_box_lengths.x / 2) &&
-//        (p.x() < bounding_box_origin.x + bounding_box_lengths.x / 2) &&
-//        (p.y() > bounding_box_origin.y - bounding_box_lengths.y / 2) &&
-//        (p.y() < bounding_box_origin.y + bounding_box_lengths.y / 2) &&
-//        (p.z() > bounding_box_origin.z - bounding_box_lengths.z / 2) &&
-//        (p.z() < bounding_box_origin.z + bounding_box_lengths.z / 2) &&
-//        (!octomap_->search(p))) {
-//      octomap_->setNodeValue(p, 0);
-//      to_check.pop();
-//      to_check.push(octomath::Vector3(p.x() + leaf_size, p.y(), p.z()));
-//      to_check.push(octomath::Vector3(p.x() - leaf_size, p.y(), p.z()));
-//      to_check.push(octomath::Vector3(p.x(), p.y() + leaf_size, p.z()));
-//      to_check.push(octomath::Vector3(p.x(), p.y() - leaf_size, p.z()));
-//      to_check.push(octomath::Vector3(p.x(), p.y(), p.z() + leaf_size));
-//      to_check.push(octomath::Vector3(p.x(), p.y(), p.z() - leaf_size));
-
-//    } else {
-//      to_check.pop();
-//    }
-//  }
-//}
 
 bool OccupancyMapFromWorld::ServiceCallback(std_srvs::Empty::Request& req,
                                             std_srvs::Empty::Response& res)
@@ -278,7 +174,7 @@ bool OccupancyMapFromWorld::index2cell(int index, unsigned int cell_size_x,
   }
 }
 
-void grid2image(nav_msgs::OccupancyGrid* map, std::string mapname_)
+void grid2image(nav_msgs::OccupancyGrid* map, std::string map_name)
     {
       ROS_INFO("Received a %d X %d map @ %.3f m/pix",
                map->info.width,
@@ -288,8 +184,7 @@ void grid2image(nav_msgs::OccupancyGrid* map, std::string mapname_)
       int threshold_occupied_ = 65;
   	  int threshold_free_ = 25;
 
-
-      std::string mapdatafile = mapname_ + ".pgm";
+      std::string mapdatafile = map_name + ".pgm";
       ROS_INFO("Writing map occupancy data to %s", mapdatafile.c_str());
       FILE* out = fopen(mapdatafile.c_str(), "w");
       if (!out)
@@ -316,7 +211,7 @@ void grid2image(nav_msgs::OccupancyGrid* map, std::string mapname_)
       fclose(out);
 
 
-      std::string mapmetadatafile = mapname_ + ".yaml";
+      std::string mapmetadatafile = map_name + ".yaml";
       ROS_INFO("Writing map occupancy data to %s", mapmetadatafile.c_str());
       FILE* yaml = fopen(mapmetadatafile.c_str(), "w");
 
@@ -451,7 +346,8 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
               wavefront.push_back(child_index);
               //mark wavefront in map so we don't add children to wavefront multiple
               //times
-              occupancy_map_->data.at(child_index) = 50;
+              // all inaccessible cells are filled in black
+              occupancy_map_->data.at(child_index) = 100;//50;
             }
           }
         }
@@ -464,7 +360,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
   map_pub_.publish(*occupancy_map_);
   ROS_INFO("Occupancy Map generation completed\n");
 
-  grid2image(occupancy_map_, file_path_);
+  grid2image(occupancy_map_, full_file_path_);
 
   //std::cout << "\rOccupancy Map generation completed                  " << std::endl;
 }
