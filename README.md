@@ -13,7 +13,7 @@ To include the plugin, add the following line in between the `<world> </world>` 
     <map_height>0.3</map_height>         <!-- in meters, optional, default 0.3 -->
     <map_size_x>10</map_size_x>          <!-- in meters, optional, default 10 -->
     <map_size_y>10</map_size_y>          <!-- in meters, optional, default 10 -->
-    <file_path>full_path_to_file</file_path>          <!-- optional, default ${HOME}/map_file -->
+    <full_file_path>full_path_to_file</full_file_path>          <!-- optional, default ${HOME}/map_file -->
 </plugin>
 ```
 
