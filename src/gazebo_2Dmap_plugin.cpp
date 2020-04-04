@@ -26,7 +26,6 @@
 #include <ignition/math/Vector3.hh>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <geometry_msgs/Quaternion.h>
-#include <Magick++.h>
 
 namespace gazebo {
 
