@@ -102,7 +102,7 @@ class OccupancyMapFromWorld : public WorldPlugin {
   std::string full_file_path_;
   ignition::math::Vector3d map_origin_;
   std::thread occ_grid_rviz_pub_th_;
-  double occupancy_map_update_time_;
+  double occupancy_map_update_rate_;
   gazebo::physics::RayShapePtr ray;
   double map_resolution_;
   double slice_height_;
