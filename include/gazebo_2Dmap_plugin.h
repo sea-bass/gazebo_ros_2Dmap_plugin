@@ -35,6 +35,7 @@
 #include <std_srvs/Empty.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <std_srvs/Empty.h>
+#include <thread>
 
 namespace gazebo {
 
@@ -59,7 +60,7 @@ class OccupancyMapFromWorld : public WorldPlugin {
   /// \param[in] _sdf SDF element that describes the plugin.
   void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf);
 
-  bool worldCellIntersection(const math::Vector3& cell_center, const double cell_length,
+  bool worldCellIntersection(const ignition::math::Vector3d& cell_center, const double cell_length,
                              gazebo::physics::RayShapePtr ray);
 
 //  void FloodFill(const math::Vector3& seed_point,
@@ -70,6 +71,8 @@ class OccupancyMapFromWorld : public WorldPlugin {
   /*! \brief
   */
   void CreateOccupancyMap();
+
+  void OccupancyGridToRviz();
 
   static void cell2world(unsigned int cell_x, unsigned int cell_y,
                          double map_size_x, double map_size_y, double map_resolution,
@@ -97,8 +100,12 @@ class OccupancyMapFromWorld : public WorldPlugin {
   nav_msgs::OccupancyGrid* occupancy_map_;
   std::string name_;
   std::string full_file_path_;
+  ignition::math::Vector3d map_origin_;
+  std::thread occ_grid_rviz_pub_th_;
+  double occupancy_map_update_time_;
+  gazebo::physics::RayShapePtr ray;
   double map_resolution_;
-  double map_height_;
+  double slice_height_;
   double map_size_x_;
   double map_size_y_;
 };
