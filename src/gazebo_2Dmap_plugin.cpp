@@ -29,7 +29,11 @@
 
 namespace gazebo {
 
-OccupancyMapFromWorld::~OccupancyMapFromWorld() {}
+OccupancyMapFromWorld::~OccupancyMapFromWorld()
+{
+  if(occ_grid_rviz_pub_th_.joinable())
+     occ_grid_rviz_pub_th_.join();
+}
 
 void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
                                  sdf::ElementPtr _sdf) {
@@ -48,15 +52,31 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
   if(_sdf->HasElement("map_resolution"))
     map_resolution_ = _sdf->GetElement("map_resolution")->Get<double>();
 
-  map_height_ = 0.3;
+  slice_height_ = 0.3;
 
-  if(_sdf->HasElement("map_z"))
-    map_height_ = _sdf->GetElement("map_z")->Get<double>();
+  if(_sdf->HasElement("slice_height"))
+      slice_height_ = _sdf->GetElement("slice_height")->Get<double>();
 
   map_size_x_ = 10.0;
 
   if(_sdf->HasElement("map_size_x"))
     map_size_x_ = _sdf->GetElement("map_size_x")->Get<double>();
+
+  occupancy_map_update_time_ = 60.0;
+  if(_sdf->HasElement("occupancy_map_update_time"))
+    occupancy_map_update_time_ = _sdf->GetElement("occupancy_map_update_time")->Get<double>();
+
+  map_origin_ = ignition::math::Vector3d(0, 0, 0);
+
+  if(_sdf->HasElement("map_origin"))
+  {
+    if(_sdf->GetElement("map_origin")->HasElement("x"))
+      map_origin_.X(_sdf->GetElement("map_origin")->GetElement("x")->Get<double>());
+    if(_sdf->GetElement("map_origin")->HasElement("y"))
+      map_origin_.Y(_sdf->GetElement("map_origin")->GetElement("y")->Get<double>());
+    if(_sdf->GetElement("map_origin")->HasElement("z"))
+      map_origin_.Z(_sdf->GetElement("map_origin")->GetElement("z")->Get<double>());
+  }
 
   map_size_y_ = 10.0;
 
@@ -67,6 +87,21 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
     full_file_path_ = _sdf->GetElement("full_file_path")->Get<std::string>();
   
   CreateOccupancyMap();
+
+  occ_grid_rviz_pub_th_ = std::thread(std::bind(&OccupancyMapFromWorld::OccupancyGridToRviz, this));
+}
+
+void OccupancyMapFromWorld::OccupancyGridToRviz()
+{
+  ros::Duration update_time(occupancy_map_update_time_);
+  // Don't start world scan until models don't load
+  update_time.sleep();
+  while(ros::ok())
+  {
+    CreateOccupancyMap();
+    update_time.sleep();
+  }
+
 }
 
 bool OccupancyMapFromWorld::ServiceCallback(std_srvs::Empty::Request& req,
@@ -262,7 +297,7 @@ free_thresh: 0.196
 void OccupancyMapFromWorld::CreateOccupancyMap()
 {
   //TODO map origin different from (0,0)
-  math::Vector3 map_origin(0,0,map_height_);
+  math::Vector3 map_origin(0,0,slice_height_);
 
   unsigned int cells_size_x = map_size_x_ / map_resolution_;
   unsigned int cells_size_y = map_size_y_ / map_resolution_;
@@ -277,9 +312,9 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
   occupancy_map_->info.resolution = map_resolution_;
   occupancy_map_->info.width = cells_size_x;
   occupancy_map_->info.height = cells_size_y;
-  occupancy_map_->info.origin.position.x = 0;
-  occupancy_map_->info.origin.position.y = 0;
-  occupancy_map_->info.origin.position.z = map_origin.z;
+  occupancy_map_->info.origin.position.x = map_origin_.X();
+  occupancy_map_->info.origin.position.y = map_origin_.Y();
+  occupancy_map_->info.origin.position.z = map_origin_.Z();
   occupancy_map_->info.origin.orientation.w = 1;
 
   gazebo::physics::PhysicsEnginePtr engine = world_->GetPhysicsEngine();
@@ -348,7 +383,7 @@ void OccupancyMapFromWorld::CreateOccupancyMap()
             cell2world(cell_x + i, cell_y + j, map_size_x_, map_size_y_, map_resolution_,
                        world_x, world_y);
 
-            bool cell_occupied = worldCellIntersection(math::Vector3(world_x, world_y, map_height_),
+            bool cell_occupied = worldCellIntersection(math::Vector3(world_x, world_y, slice_height_),
                                                        map_resolution_, ray);
 
             if(cell_occupied)

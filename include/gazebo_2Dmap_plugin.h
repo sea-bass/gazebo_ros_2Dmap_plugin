@@ -35,6 +35,7 @@
 #include <std_srvs/Empty.h>
 #include <costmap_2d/costmap_2d_ros.h>
 #include <std_srvs/Empty.h>
+#include <thread>
 
 namespace gazebo {
 
@@ -71,6 +72,8 @@ class OccupancyMapFromWorld : public WorldPlugin {
   */
   void CreateOccupancyMap();
 
+  void OccupancyGridToRviz();
+
   static void cell2world(unsigned int cell_x, unsigned int cell_y,
                          double map_size_x, double map_size_y, double map_resolution,
                          double& world_x, double &world_y);
@@ -95,10 +98,13 @@ class OccupancyMapFromWorld : public WorldPlugin {
   ros::ServiceServer map_service_;
   ros::Publisher map_pub_;
   nav_msgs::OccupancyGrid* occupancy_map_;
+  ignition::math::Vector3d map_origin_;
+  std::thread occ_grid_rviz_pub_th_;
+  double occupancy_map_update_time_;
   std::string name_;
   std::string full_file_path_;
   double map_resolution_;
-  double map_height_;
+  double slice_height_;
   double map_size_x_;
   double map_size_y_;
 };
