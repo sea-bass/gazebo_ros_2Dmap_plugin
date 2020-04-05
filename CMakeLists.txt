@@ -15,8 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
   xacro
 )
 
-find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
-
 add_definitions(-std=c++11)
 
 find_package(gazebo REQUIRED)
