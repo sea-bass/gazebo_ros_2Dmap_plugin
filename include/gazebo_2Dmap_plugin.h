@@ -100,7 +100,7 @@ class OccupancyMapFromWorld : public WorldPlugin {
   nav_msgs::OccupancyGrid* occupancy_map_;
   ignition::math::Vector3d map_origin_;
   std::thread occ_grid_rviz_pub_th_;
-  double occupancy_map_update_time_;
+  double occupancy_map_update_rate_;
   std::string name_;
   std::string full_file_path_;
   double map_resolution_;

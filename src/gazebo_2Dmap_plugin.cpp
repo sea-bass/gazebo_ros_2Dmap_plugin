@@ -61,9 +61,9 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
   if(_sdf->HasElement("map_size_x"))
     map_size_x_ = _sdf->GetElement("map_size_x")->Get<double>();
 
-  occupancy_map_update_time_ = 60.0;
-  if(_sdf->HasElement("occupancy_map_update_time"))
-    occupancy_map_update_time_ = _sdf->GetElement("occupancy_map_update_time")->Get<double>();
+  occupancy_map_update_rate_ = 60.0;
+  if(_sdf->HasElement("occupancy_map_update_rate"))
+    occupancy_map_update_rate_ = _sdf->GetElement("occupancy_map_update_rate")->Get<double>();
 
   map_origin_ = ignition::math::Vector3d(0, 0, 0);
 
@@ -92,7 +92,7 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
 
 void OccupancyMapFromWorld::OccupancyGridToRviz()
 {
-  ros::Duration update_time(occupancy_map_update_time_);
+  ros::Duration update_time(occupancy_map_update_rate_);
   // Don't start world scan until models don't load
   update_time.sleep();
   while(ros::ok())
