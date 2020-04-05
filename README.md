@@ -9,10 +9,16 @@ To include the plugin, add the following line in between the `<world> </world>` 
 
 ```
 <plugin name='gazebo_occupancy_map' filename='libgazebo_2Dmap_plugin.so'>
-    <map_resolution>0.1</map_resolution> <!-- in meters, optional, default 0.1 -->
-    <map_height>0.3</map_height>         <!-- in meters, optional, default 0.3 -->
+    <map_resolution>0.1</map_resolution> <!-- in meters per pixel, optional, default 0.1 -->
+    <slice_height>0.3</slice_height>         <!-- in meters, optional, default 0.3 -->
     <map_size_x>10</map_size_x>          <!-- in meters, optional, default 10 -->
     <map_size_y>10</map_size_y>          <!-- in meters, optional, default 10 -->
+    <map_origin>          <!-- A map origin in RViZ, optional, default (0,0,0) -->
+      <x>1</x>
+      <y>1</y>
+      <z>1</z>
+    </map_origin>
+    <occupancy_map_update_rate>60</occupancy_map_update_rate>          <!-- A map refresh rate, in seconds -->
     <full_file_path>full_path_to_file</full_file_path>          <!-- optional, default ${HOME}/map_file -->
 </plugin>
 ```
