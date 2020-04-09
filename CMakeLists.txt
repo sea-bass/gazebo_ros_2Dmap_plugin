@@ -6,11 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   gazebo_ros_control
   gazebo_plugins
-  joint_state_publisher
-  kdl_parser
-  robot_state_publisher
   roscpp
-  rospy
   tf2
   xacro
 )
@@ -18,16 +14,17 @@ find_package(catkin REQUIRED COMPONENTS
 add_definitions(-std=c++11)
 
 find_package(gazebo REQUIRED)
+find_package(Eigen3 REQUIRED)
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 catkin_package()
 
 include_directories(
-  include ${catkin_INCLUDE_DIRS} ${GAZEBO_MSG_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${ImageMagick_INCLUDE_DIRS}
+  include ${catkin_INCLUDE_DIRS} ${GAZEBO_MSG_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR}
 )
 
 add_library(gazebo_2Dmap_plugin SHARED src/gazebo_2Dmap_plugin.cpp)
-target_link_libraries(gazebo_2Dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${ImageMagick_LIBRARIES})
+target_link_libraries(gazebo_2Dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
 install(TARGETS gazebo_2Dmap_plugin
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
