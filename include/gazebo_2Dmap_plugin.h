@@ -32,6 +32,7 @@
 #include <ros/ros.h>
 #include <sdf/sdf.hh>
 #include <std_srvs/Empty.h>
+#include <nav_msgs/OccupancyGrid.h>
 #include <thread>
 
 namespace gazebo {
