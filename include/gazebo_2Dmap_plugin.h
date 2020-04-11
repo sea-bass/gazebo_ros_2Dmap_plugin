@@ -29,11 +29,8 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <octomap/octomap.h>
 #include <ros/ros.h>
 #include <sdf/sdf.hh>
-#include <std_srvs/Empty.h>
-#include <costmap_2d/costmap_2d_ros.h>
 #include <std_srvs/Empty.h>
 #include <thread>
 
