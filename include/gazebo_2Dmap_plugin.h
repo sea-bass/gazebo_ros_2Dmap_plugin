@@ -72,13 +72,13 @@ class OccupancyMapFromWorld : public WorldPlugin {
 
   void OccupancyGridToRviz();
 
-  static void cell2world(unsigned int cell_x, unsigned int cell_y,
-                         double map_size_x, double map_size_y, double map_resolution,
-                         double& world_x, double &world_y);
+  void cell2world(unsigned int cell_x, unsigned int cell_y,
+                  double map_size_x, double map_size_y, double map_resolution,
+                  double& world_x, double &world_y);
 
-  static void world2cell(double world_x, double world_y,
-                         double map_size_x, double map_size_y, double map_resolution,
-                         unsigned int& cell_x, unsigned int& cell_y);
+  void world2cell(double world_x, double world_y,
+                  double map_size_x, double map_size_y, double map_resolution,
+                  unsigned int& cell_x, unsigned int& cell_y);
 
   static bool cell2index(int cell_x, int cell_y,
                          unsigned int cell_size_x, unsigned int cell_size_y,

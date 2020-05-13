@@ -42,3 +42,6 @@ The map is saved once you call the map generation service.
 
 * To identify the connected free space the robot would discover during mapping, the plugin performs a wavefront exploration along the occupancy grid starting from the origin of the gazebo world coordinate system. Please ensure that the corresponding cell is in the continuous free space. 
 * The plugin will map all objects in the world, including the robot. Remove all unwanted  objects before creating the map. 
+* If your plugin won't load, ensure the `GAZEBO_PLUGIN_PATH` environment variable is set as follows:
+
+`export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:/path/to/catkin_ws/devel/gazebo_ros_2Dmap_plugin/lib`

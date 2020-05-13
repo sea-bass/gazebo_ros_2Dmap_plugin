@@ -156,8 +156,8 @@ void OccupancyMapFromWorld::cell2world(unsigned int cell_x, unsigned int cell_y,
 {
   /*world_x = cell_x * map_resolution - map_size_x/2 + map_resolution/2;
   world_y = cell_y * map_resolution - map_size_y/2 + map_resolution/2;*/
-  world_x = cell_x * map_resolution + map_resolution/2;
-  world_y = cell_y * map_resolution + map_resolution/2;
+  world_x = cell_x * map_resolution + map_resolution/2 + map_origin_.X();
+  world_y = cell_y * map_resolution + map_resolution/2 + map_origin_.Y();
 }
 
 void OccupancyMapFromWorld::world2cell(double world_x, double world_y,
@@ -167,8 +167,8 @@ void OccupancyMapFromWorld::world2cell(double world_x, double world_y,
 {
   /*cell_x = (world_x + map_size_x/2) / map_resolution;
   cell_y = (world_y + map_size_y/2) / map_resolution;*/
-  cell_x = world_x / map_resolution;
-  cell_y = world_y / map_resolution;
+  cell_x = (world_x - map_origin_.X()) / map_resolution;
+  cell_y = (world_y - map_origin_.Y()) / map_resolution;
 }
 
 bool OccupancyMapFromWorld::cell2index(int cell_x, int cell_y,
@@ -298,8 +298,9 @@ void OccupancyMapFromWorld::OccupancyGridToRviz()
 
 void OccupancyMapFromWorld::CreateOccupancyMap()
 {
-  //TODO map origin different from (0,0)
-  ignition::math::Vector3d map_origin(0,0,slice_height_);
+  // Set up the origin based on the map origin specified
+  ignition::math::Vector3d map_origin(map_origin_.X(), map_origin_.Y(),
+                                      map_origin_.Z() + slice_height_);
 
   unsigned int cells_size_x = map_size_x_ / map_resolution_;
   unsigned int cells_size_y = map_size_y_ / map_resolution_;
