@@ -23,15 +23,15 @@ To include the plugin, add the following line in between the `<world> </world>` 
 </plugin>
 ```
 
-To generate the map, call the `/gazebo_2Dmap_plugin/generate_map` ros service:
+To generate the map, call the `/gazebo_2dmap_plugin/generate_map` ros service:
 
 ```
-rosservice call /gazebo_2Dmap_plugin/generate_map
+rosservice call /gazebo_2dmap_plugin/generate_map
 ```
 
 The generated map is published on the `/map` ros topic. 
 
-You can use the `map_saver` node from the `map_server` package inside ros navigation to save your generated map to a .pgm and .yaml file. To do so, start the node before calling the `/gazebo_2Dmap_plugin/generate_map` ros service:
+You can use the `map_saver` node from the `map_server` package inside ros navigation to save your generated map to a .pgm and .yaml file. To do so, start the node before calling the `/gazebo_2dmap_plugin/generate_map` ros service:
 
 ```
 rosrun map_server map_saver -f <mapname>
