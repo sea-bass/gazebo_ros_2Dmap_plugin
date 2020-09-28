@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(gazebo_ros_2Dmap_plugin)
+project(gazebo_ros_2dmap_plugin)
 
 find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
@@ -23,9 +23,9 @@ include_directories(
   include ${catkin_INCLUDE_DIRS} ${GAZEBO_MSG_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR}
 )
 
-add_library(gazebo_2Dmap_plugin SHARED src/gazebo_2Dmap_plugin.cpp)
-target_link_libraries(gazebo_2Dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${ImageMagick_LIBRARIES})
+add_library(gazebo_2dmap_plugin SHARED src/gazebo_2dmap_plugin.cpp)
+target_link_libraries(gazebo_2dmap_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${ImageMagick_LIBRARIES})
 
-install(TARGETS gazebo_2Dmap_plugin
+install(TARGETS gazebo_2dmap_plugin
 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )

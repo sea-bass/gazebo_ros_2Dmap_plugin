@@ -43,7 +43,7 @@ namespace gazebo {
 class OccupancyMapFromWorld : public WorldPlugin {
  public:
   OccupancyMapFromWorld()
-      : WorldPlugin(), name_("gazebo_2Dmap_plugin")
+      : WorldPlugin(), name_("gazebo_2dmap_plugin")
   {
     ROS_INFO_NAMED(name_, "occupancy map plugin started");
   }

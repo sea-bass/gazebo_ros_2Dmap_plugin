@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "gazebo_2Dmap_plugin.h"
+#include "gazebo_2dmap_plugin.h"
 
 #include <gazebo/common/Time.hh>
 #include <gazebo/common/CommonTypes.hh>
@@ -45,7 +45,7 @@ void OccupancyMapFromWorld::Load(physics::WorldPtr _parent,
 
   map_pub_ = nh_.advertise<nav_msgs::OccupancyGrid>("map", 1);
   map_service_ = nh_.advertiseService(
-        "gazebo_2Dmap_plugin/generate_map", &OccupancyMapFromWorld::ServiceCallback, this);
+        "gazebo_2dmap_plugin/generate_map", &OccupancyMapFromWorld::ServiceCallback, this);
 
   map_resolution_ = 0.1;
 
